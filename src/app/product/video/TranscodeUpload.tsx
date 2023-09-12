@@ -7,6 +7,10 @@ interface props {
   setTranscodeUpload: (b: boolean) => void;
   setJobId: (id: string | null) => void;
 }
+
+const serverUrl = "https://mi-server.onrender.com";
+// const serverUrl = "http://localhost:8000/";
+
 const TranscodeUpload = ({ jobId, setTranscodeUpload, setJobId }: props) => {
   const [data, setData] = useState<null | {
     jobStatus: string;
@@ -16,7 +20,7 @@ const TranscodeUpload = ({ jobId, setTranscodeUpload, setJobId }: props) => {
     const fetchData = async () => {
       try {
         const { data } = await axios.get(
-          `http://localhost:8000/api/v1/media/video/getProgress/${jobId}`
+          `${serverUrl}/api/v1/media/video/getProgress/${jobId}`
         ); // Replace with your API endpoint
         console.log(data);
         setData(data.data);

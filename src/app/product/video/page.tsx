@@ -7,6 +7,9 @@ interface FormProps {
 }
 import TranscodeUpload from "./TranscodeUpload";
 
+const serverUrl = "https://mi-server.onrender.com";
+// const serverUrl = "http://localhost:8000/";
+
 interface FormData {
   category: string;
   name: string;
@@ -26,7 +29,7 @@ const uploadImage = async (
   };
   try {
     const { data } = await axios.post(
-      "http://localhost:8000/api/v1/media/video/getUrl",
+      `${serverUrl}/api/v1/media/video/getUrl`,
       metaData
     );
     console.log(data.url);
@@ -153,8 +156,9 @@ const page = () => {
     // setLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:8000/api/v1/media/video/reduceVideo",
+        `${serverUrl}/api/v1/media/video/reduceVideo`,
         { name: imgName },
+        // { name: "MI-Clip-008.mp4" },
         {
           onUploadProgress: (data) => {
             if (data.total)
@@ -359,9 +363,12 @@ const page = () => {
             )}
             <ul className="flex gap-3 flex-col ">
               {imgName &&
-                getImg(imgName).map((obj) => {
+                getImg(imgName).map((obj, index) => {
                   return (
-                    <li className="flex justify-around w-[80%] bg-blue-500  px-3 py-2 rounded text-white">
+                    <li
+                      key={index}
+                      className="flex justify-around w-[80%] bg-blue-500  px-3 py-2 rounded text-white"
+                    >
                       <span>{obj.quality} </span>
                       <span>{obj.folder.split("/")[1]} </span>
                       <a

@@ -24,8 +24,11 @@ const uploadImage = async (
     formData.append("category", JSON.stringify(category));
     formData.append("description", JSON.stringify(description));
 
+    const serverUrl = "https://mi-server.onrender.com";
+    // const serverUrl = "http://localhost:8000/";
+
     const { data } = await axios.post(
-      "http://localhost:8000/api/v1/media/img/reduceImg",
+      `${serverUrl}/api/v1/media/img/reduceImg`,
       formData,
       {
         headers: {
@@ -324,9 +327,12 @@ const page = () => {
             )}
             <ul className="flex gap-3 flex-col ">
               {imgName &&
-                getImg(imgName, data).map((obj) => {
+                getImg(imgName, data).map((obj, index) => {
                   return (
-                    <li className="flex justify-around w-[80%] bg-blue-500  px-3 py-2 rounded text-white">
+                    <li
+                      key={index}
+                      className="flex justify-around w-[80%] bg-blue-500  px-3 py-2 rounded text-white"
+                    >
                       <span>{obj.quality} </span>
                       <span>{obj.folder.split("/")[1]} </span>
                       <a

@@ -11,6 +11,10 @@ interface FormData {
   name: string;
   description: string;
 }
+
+const serverUrl = "https://mi-server.onrender.com";
+// const serverUrl = "http://localhost:8000/";
+
 const uploadImage = async (
   file: File,
   category: string,
@@ -24,7 +28,7 @@ const uploadImage = async (
     formData.append("description", JSON.stringify(description));
 
     const response = await axios.post(
-      "http://localhost:8000/api/v1/media/img/reduceImg",
+      `${serverUrl}/api/v1/media/img/reduceImg`,
       formData,
       {
         headers: {
