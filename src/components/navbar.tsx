@@ -21,17 +21,14 @@ const navbar = () => {
           <span className="hover:text-orange-400">Product</span>
           {showProduct && (
             <>
-              <Link
-                className="ml-3 hover:text-orange-400 "
-                href={"/product/image"}
-              >
+              <Link className="ml-3 hover:text-orange-400 " href={"/image"}>
                 Image
               </Link>
-              <Link
-                className="ml-3 hover:text-orange-400 "
-                href={"/product/video"}
-              >
+              <Link className="ml-3 hover:text-orange-400 " href={"/video"}>
                 Video
+              </Link>
+              <Link className="ml-3 hover:text-orange-400 " href={"/audio"}>
+                Audio
               </Link>
             </>
           )}

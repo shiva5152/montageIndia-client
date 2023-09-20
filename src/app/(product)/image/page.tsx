@@ -2,84 +2,134 @@
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
+import { spawn } from "child_process";
 interface FormProps {
   onSubmit: (formData: FormData) => void;
 }
-import TranscodeUpload from "./TranscodeUpload";
-
-const serverUrl = "https://mi-server.onrender.com";
-// const serverUrl = "http://localhost:8000/";
 
 interface FormData {
   category: string;
   name: string;
   description: string;
 }
+
+interface responseData {
+  msg: string;
+  imgName: string;
+  width: number;
+  height: number;
+}
+const getName = (array: any): string => {
+  console.log(array, "from function");
+  let name = "";
+  for (let index = 0; index < array.length; index++) {
+    if (index != 0) name += ", ";
+    name += array[index].name;
+  }
+  return name;
+};
 const uploadImage = async (
-  file: File,
+  files: File[],
   category: string,
   description: string,
-  setUploadProgress: (num: number) => void
+  setUploadProgress: (num: number) => void,
+  setData: React.Dispatch<React.SetStateAction<responseData[]>>
 ) => {
-  const metaData = {
-    name: file.name,
-    type: file.type,
-    category,
-    description,
-  };
   try {
-    const { data } = await axios.post(
-      `${serverUrl}/api/v1/media/video/getUrl`,
-      metaData
-    );
-    console.log(data.url);
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append("image", files[i]);
+    }
+    formData.append("category", JSON.stringify(category));
+    formData.append("description", JSON.stringify(description));
 
-    if (data) {
-      const uploadRes = await axios.put(data.url, file, {
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "";
+    console.log(serverUrl);
+    const { data } = await axios.post(
+      `${serverUrl}/api/v1/media/img/reduceImg`,
+      formData,
+      {
         headers: {
-          "Content-Type": file.type,
+          "Content-Type": "multipart/form-data",
         },
         onUploadProgress: (data) => {
-          if (data.total)
+          if (data.total) {
             console.log(Math.round((data.loaded / data.total) * 100));
-          if (data.total)
             setUploadProgress(Math.round((data.loaded / data.total) * 100));
+          }
         },
-      });
-    }
-
+      }
+    );
+    setData(data.results);
     console.log("Upload successful:", data);
   } catch (error) {
-    console.error("Error uploading image:", error);
+    console.error("Error uploading images:", error);
   }
 };
-const getImg = (imgName: string) => {
-  const name = imgName.split(".")[0];
+
+// const uploadImage = async (
+//   file: File,
+//   category: string,
+//   description: string,
+//   setUploadProgress: (num: number) => void,
+//   setData: (obj: null | { width: number; height: number }) => void
+// ) => {
+//   try {
+//     const formData = new FormData();
+//     formData.append("image", file);
+//     formData.append("category", JSON.stringify(category));
+//     formData.append("description", JSON.stringify(description));
+
+//     const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "";
+//     // const serverUrl = "http://localhost:8000";
+//     console.log(serverUrl);
+//     const { data } = await axios.post(
+//       `${serverUrl}/api/v1/media/img/reduceImg`,
+//       formData,
+//       {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//         onUploadProgress: (data) => {
+//           if (data.total)
+//             console.log(Math.round((data.loaded / data.total) * 100));
+//           if (data.total)
+//             setUploadProgress(Math.round((data.loaded / data.total) * 100));
+//         },
+//       }
+//     );
+//     setData({ width: data.width, height: data.height });
+//     console.log("Upload successful:", data);
+//   } catch (error) {
+//     console.error("Error uploading image:", error);
+//   }
+// };
+const getImg = (imgName: string, width: number, height: number) => {
   return [
     {
-      folder: "Video/Original",
-      filename: `${name}-Original.mp4`,
-      quality: "4k/3840x2160p",
+      folder: "Images/Original",
+      filename: `Original-${imgName}`,
+      quality: `${width}x${height}`,
     },
     {
-      folder: "Video/Medium",
-      filename: `${name}-Medium.mp4`,
-      quality: "UHD/1920x1080p",
+      folder: "Images/Medium",
+      filename: `Medium-${imgName}`,
+      quality: `${width / 2}x${height / 2}`,
     },
     {
-      folder: "Video/Small",
-      filename: `${name}-Small.mp4`,
-      quality: "HD/1280x720p",
+      folder: "Images/Small",
+      filename: `Small-${imgName}`,
+      quality: `${width / 4}x${height / 4}`,
     },
     {
-      folder: "Video/ProductPage",
-      filename: `${name}-ProductPage.webm`,
-      quality: "HD/1280x720p",
+      folder: "Images/ProductPage",
+      filename: `ProductPage-${imgName}`,
+      quality: `${width / 4}x${height / 4}`,
     },
     {
-      folder: "Video/Thumbnail",
-      filename: `${name}-Thumbnail.webm`,
-      quality: "SD/640x480p",
+      folder: "Images/Thumbnail",
+      filename: `Thumbnail-${imgName}`,
+      quality: `${150}x${Math.round(150 * (height / width))}`,
     },
   ];
 };
@@ -87,13 +137,13 @@ const getImg = (imgName: string) => {
 const awsHost = "https://shivatemp1.s3.eu-north-1.amazonaws.com";
 
 const page = () => {
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File[] | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imgName, setImgName] = useState("");
   const [uploaded, setUploaded] = useState(false);
-  const [transcodeUpload, setTranscodeUpload] = useState(false);
-  console.log(file);
+  const [data, setData] = useState<responseData[]>([]);
+  // console.log(file);
   const [formData, setFormData] = useState<FormData>({
     category: "",
     description: "",
@@ -109,15 +159,15 @@ const page = () => {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setUploadProgress(0);
-    if (acceptedFiles && acceptedFiles[0].name.split(".")[1] === "mp4") {
-      setFile(acceptedFiles[0]);
+    if (acceptedFiles && acceptedFiles[0].name.split(".")[1] === "jpg") {
+      setFile(acceptedFiles);
       setFormData({ ...formData, name: acceptedFiles[0].name });
-      setImgName(acceptedFiles[0].name);
+      const fileName = getName(acceptedFiles);
+      setImgName(fileName);
     } else {
       alert("please upload valid image datatype");
     }
   }, []);
-
   const handleUpload = async (e: any) => {
     e.preventDefault();
     if (loading) {
@@ -138,9 +188,10 @@ const page = () => {
       file,
       formData.category,
       formData.description,
-      setUploadProgress
+      setUploadProgress,
+      setData
     );
-    setImgName(file.name);
+    setImgName(file[0].name);
     setFile(null);
     setLoading(false);
     setFormData({
@@ -149,35 +200,12 @@ const page = () => {
       name: "",
     });
     setUploaded(true);
-    setUploadProgress(0);
   };
-  const [jobId, setJobId] = useState<null | string>(null);
-  const handleTranscode = async () => {
-    // setLoading(true);
-    try {
-      const { data } = await axios.post(
-        `${serverUrl}/api/v1/media/video/reduceVideo`,
-        { name: imgName },
-        // { name: "MI-Clip-008.mp4" },
-        {
-          onUploadProgress: (data) => {
-            if (data.total)
-              console.log(Math.round((data.loaded / data.total) * 100));
-            if (data.total)
-              setUploadProgress(Math.round((data.loaded / data.total) * 100));
-          },
-        }
-      );
-      console.log(data);
-      // setLoading(false);
-      setJobId(data.jobId);
-      console.log(data.jobId);
-      console.log("Transcoding successful:", data);
-    } catch (error) {
-      setLoading(false);
-      console.error("Error transcoding image:", error);
-    }
-  };
+  //   const handleSubmit = (e: React.FormEvent) => {
+  //     e.preventDefault();
+  //     onSubmit(formData);
+  //   };
+  console.log("here are the files", data);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -187,7 +215,7 @@ const page = () => {
     <section className="flex w-full">
       <section className="p-4 w-[50%] flex justify-center items-center flex-col">
         <h2 className="text-2xl max-w-md p-4 py-2 underline underline-offset-8 mb-8 font-bold ">
-          Upload video
+          Upload image
         </h2>
         <div className="w-full">
           <div {...getRootProps()}>
@@ -212,7 +240,7 @@ const page = () => {
                   </svg>
                 </span>
 
-                <p className="w-full text-center">Upload video</p>
+                <p className="w-full text-center">Upload Image</p>
               </div>
             </div>
           </div>
@@ -221,11 +249,20 @@ const page = () => {
           <form className="space-y-4 w-full">
             <div>
               <label htmlFor="category" className="block text-gray-700">
-                Name of video:
+                Name of Image:
               </label>
               {file && (
-                <p className="w-full bg-white px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
-                  {imgName}
+                <p className="w-full bg-white flex flex-wrap gap-2 px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                  {file &&
+                    file.map((obj) => (
+                      <span
+                        className="bg-blue-400  text-white p-1 rounded-md"
+                        key={obj.name + obj.size}
+                      >
+                        {" "}
+                        {obj.name}{" "}
+                      </span>
+                    ))}
                 </p>
               )}
             </div>
@@ -261,34 +298,35 @@ const page = () => {
             </div>
             <div>
               <button
-                disabled={uploaded}
                 onClick={handleUpload}
                 type="submit"
-                className="w-full bg-blue-500 mb-3 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+                className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
               >
                 upload
               </button>
-              {uploaded && (
-                <button
-                  disabled={transcodeUpload}
-                  onClick={handleTranscode}
-                  className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300"
-                >
-                  Transcode the uploaded video
-                </button>
-              )}
             </div>
-
-            {loading && !jobId && (
+            {/* <div className=" border-2 flex justify-center border-green-600 text-center text-white rounded">
+            <div
+              className=" bg-green-500"
+              role="progressbar"
+              aria-valuemax={0}
+              aria-valuenow={uploadProgress}
+              aria-valuemin={100}
+              style={{ width: `${uploadProgress}%` }}
+            >
+              {`${uploadProgress}%`}
+            </div>
+          </div> */}
+            {loading && (
               <div className="relative pt-1">
                 <div className="flex mb-2 items-center justify-between">
                   <div>
-                    <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200">
+                    <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
                       Upload Progress
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold inline-block text-blue-600">
+                    <span className="text-xs font-semibold inline-block text-teal-600">
                       {uploadProgress == 100 && loading
                         ? "99%"
                         : `${uploadProgress.toFixed(2)}%`}
@@ -310,14 +348,6 @@ const page = () => {
                   </div>
                 </div>
               </div>
-            )}
-
-            {jobId && (
-              <TranscodeUpload
-                jobId={jobId}
-                setJobId={setJobId}
-                setTranscodeUpload={setTranscodeUpload}
-              />
             )}
           </form>
         </div>
@@ -349,41 +379,44 @@ const page = () => {
         </button>
       </form> */}
       </section>
-      <section className="w-[50%] flex-col flex items-center  p-4 ">
+      <section className="w-[50%] flex-col h-screen flex items-center overflow-y-auto  p-4 ">
         <h2 className="text-2xl max-w-md p-4 py-2 underline underline-offset-8 mb-8 font-bold ">
           All versions
         </h2>
-
-        {transcodeUpload && (
-          <div className="w-full all_img_container overflow-y-auto">
-            {imgName && (
-              <h3 className="underline underline-offset-1 text-gray-600">
-                {imgName}
-              </h3>
-            )}
-            <ul className="flex gap-3 flex-col ">
-              {imgName &&
-                getImg(imgName).map((obj, index) => {
-                  return (
-                    <li
-                      key={index}
-                      className="flex justify-around w-[80%] bg-blue-500  px-3 py-2 rounded text-white"
-                    >
-                      <span>{obj.quality} </span>
-                      <span>{obj.folder.split("/")[1]} </span>
-                      <a
-                        className="text-sky-50 underline"
-                        href={`${awsHost}/${obj.folder}/${obj.filename}`}
-                        target="_blank"
-                      >
-                        view
-                      </a>
-                    </li>
-                  );
-                })}
-            </ul>
-          </div>
-        )}
+        {data &&
+          data.map((temp, index) => (
+            <>
+              {true && (
+                <div key={index} className="w-full all_img_container mb-4">
+                  <h3 className="underline underline-offset-1 text-gray-600">
+                    {temp.imgName}
+                  </h3>
+                  <ul className="flex gap-3 flex-col ">
+                    {getImg(temp.imgName, temp.width, temp.height).map(
+                      (obj, index) => {
+                        return (
+                          <li
+                            key={index}
+                            className="flex justify-around w-[80%] bg-blue-500  px-3 py-2 rounded text-white"
+                          >
+                            <span>{obj.quality} </span>
+                            <span>{obj.folder.split("/")[1]} </span>
+                            <a
+                              className="text-sky-50 underline"
+                              href={`${awsHost}/${obj.folder}/${obj.filename}`}
+                              target="_blank"
+                            >
+                              view
+                            </a>
+                          </li>
+                        );
+                      }
+                    )}
+                  </ul>
+                </div>
+              )}
+            </>
+          ))}
       </section>
     </section>
   );

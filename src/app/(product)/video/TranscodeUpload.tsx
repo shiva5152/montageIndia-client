@@ -8,8 +8,8 @@ interface props {
   setJobId: (id: string | null) => void;
 }
 
-const serverUrl = "https://mi-server.onrender.com";
-// const serverUrl = "http://localhost:8000/";
+const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "";
+console.log(serverUrl);
 
 const TranscodeUpload = ({ jobId, setTranscodeUpload, setJobId }: props) => {
   const [data, setData] = useState<null | {

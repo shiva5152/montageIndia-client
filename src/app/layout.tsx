@@ -1,7 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { AuthContextProvider } from "@/context/AuthContext";
+import Protected from "@/components/Protected";
 import Navbar from "@/components/navbar";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -16,18 +19,23 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <main className="flex ">
-          <section className="w-[18%]">
-            <Navbar />
-          </section>
+      <AuthContextProvider>
+        <body className={inter.className}>
+          <main className="flex ">
+            <section className="w-[18%]">
+              <Navbar />
+            </section>
 
-          <section className="w-[82%] bg-[#fbfbfb] h-screen">
-            {" "}
-            {children}
-          </section>
-        </main>
-      </body>
+            <section
+              className={`
+                 w-[82%] bg-[#fbfbfb] h-screen`}
+            >
+              {" "}
+              <Protected>{children}</Protected>
+            </section>
+          </main>
+        </body>
+      </AuthContextProvider>
     </html>
   );
 }
