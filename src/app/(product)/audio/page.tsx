@@ -92,7 +92,7 @@ const page = () => {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setUploadProgress(0);
-    if (acceptedFiles) {
+    if (acceptedFiles && acceptedFiles[0].name.split(".")[1] === "mp3") {
       setFile(acceptedFiles[0]);
       setFormData({ ...formData, name: acceptedFiles[0].name });
       setImgName(acceptedFiles[0].name);
