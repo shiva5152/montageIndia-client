@@ -12,7 +12,7 @@ export default function Home() {
   const { logout } = useAuth();
   return (
     <div className="bg-[#fbfbfb] h-screen">
-      <button onClick={logout}> logout</button>
+      <button onClick={logout}></button>
     </div>
   );
 }

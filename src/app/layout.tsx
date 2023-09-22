@@ -22,17 +22,8 @@ export default function RootLayout({
       <AuthContextProvider>
         <body className={inter.className}>
           <main className="flex ">
-            <section className="w-[18%]">
-              <Navbar />
-            </section>
-
-            <section
-              className={`
-                 w-[82%] bg-[#fbfbfb] h-screen`}
-            >
-              {" "}
-              <Protected>{children}</Protected>
-            </section>
+            {" "}
+            <Protected>{children}</Protected>
           </main>
         </body>
       </AuthContextProvider>

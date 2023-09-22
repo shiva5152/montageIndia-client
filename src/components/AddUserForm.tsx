@@ -104,7 +104,7 @@ function MyForm() {
 
         <div className="mb-4">
           <label htmlFor="mediaType" className="block text-gray-600">
-            Media Type:
+            Type:
           </label>
           <select
             id="mediaType"
@@ -115,13 +115,13 @@ function MyForm() {
             className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:border-blue-500"
           >
             <option value="">Select Media Type</option>
-            <option value="image">Image</option>
-            <option value="video">Video</option>
-            <option value="video">Audio</option>
+            <option value="image">cyber security</option>
+            <option value="video">security manager</option>
+            <option value="video">cyber security manager </option>
           </select>
         </div>
 
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label htmlFor="category" className="block text-gray-600">
             Category:
           </label>
@@ -138,7 +138,7 @@ function MyForm() {
             <option value="sports">Sports</option>
             <option value="sports">Vibe</option>
           </select>
-        </div>
+        </div> */}
 
         <button
           type="submit"
