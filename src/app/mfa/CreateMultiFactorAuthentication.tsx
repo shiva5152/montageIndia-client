@@ -2,7 +2,7 @@ import { User } from "@firebase/auth";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { PhoneRegistration } from "./PhoneRegistration";
 import { verifyPhoneNumber } from "@/config/auth";
-// import { notify } from "@/utils/notify";
+// import { notify } from "@/utils/notif
 import { useState } from "react";
 import { CodeSignup } from "./CodeSignup";
 
