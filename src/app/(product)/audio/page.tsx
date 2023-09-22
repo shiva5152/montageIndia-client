@@ -1,7 +1,9 @@
 "use client";
 import React, { useCallback, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
+import { auth } from "@/config/firebase";
 interface FormProps {
   onSubmit: (formData: FormData) => void;
 }
@@ -16,7 +18,8 @@ const uploadImage = async (
   category: string,
   description: string,
   setUploadProgress: (num: number) => void,
-  setData: (obj: null | { width: number; height: number }) => void
+  setData: (obj: null | { width: number; height: number }) => void,
+  token: string
 ) => {
   try {
     const formData = new FormData();
@@ -33,6 +36,7 @@ const uploadImage = async (
       {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: token,
         },
         onUploadProgress: (data) => {
           if (data.total)
@@ -76,6 +80,7 @@ const page = () => {
   const [data, setData] = useState<null | { width: number; height: number }>(
     null
   );
+  // const { user }: { user: User | null } = useAuth();
   // console.log(file);
   const [formData, setFormData] = useState<FormData>({
     category: "",
@@ -100,6 +105,7 @@ const page = () => {
       alert("please upload valid image datatype");
     }
   }, []);
+
   const handleUpload = async (e: any) => {
     e.preventDefault();
     if (loading) {
@@ -116,12 +122,15 @@ const page = () => {
       alert("please provide description of image");
     }
     setLoading(true);
+    const token = (await auth.currentUser?.getIdToken(true)) as string;
+
     await uploadImage(
       file,
       formData.category,
       formData.description,
       setUploadProgress,
-      setData
+      setData,
+      token
     );
     setImgName(file.name);
     setFile(null);

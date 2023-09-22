@@ -56,7 +56,7 @@ export function Login({ loginWithGoogle, loginWithEmailAndPassword }: Props) {
               {/* <Password className="w-6 h-6 absolute left-4 inset-y-0 my-auto" /> */}
               <input
                 ref={password}
-                type="password"
+                type="text"
                 name="password"
                 id="password"
                 placeholder="Insert your password"

@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { signUp } from "@/config/auth";
+import axios from "axios";
 
+const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "";
 function MyForm() {
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
     role: "",
@@ -25,34 +27,49 @@ function MyForm() {
       alert("email or password is not provided");
       return;
     }
-    const result = await signUp(formData.email, formData.password);
-    if (!result) {
-      alert("something went wrong");
-      return;
-    }
-    const { user } = result;
-    const apiBody = {
-      email: user.email,
-      uid: user.uid,
-      avatar: user.photoURL || "none",
-      name: user.displayName || "none",
-      role: "",
-      category: "",
-      mediaType: "",
-    };
+
     if (!formData.role || !formData.category || !formData.mediaType) {
       alert("please provide all values");
       return;
     }
-    (apiBody.role = formData.role),
-      (apiBody.category = formData.category),
-      (apiBody.mediaType = formData.mediaType),
-      console.log(formData);
+
+    try {
+      const { data } = await axios.post(
+        `${serverUrl}/api/v1/auth/admin/signup`,
+        formData
+      );
+      console.log("Response data:", data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      role: "",
+      mediaType: "",
+      category: "",
+    });
   };
 
   return (
     <div className="max-w-md mx-auto mt-4 p-6 bg-white rounded-lg shadow-md">
       <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label htmlFor="name" className="block text-gray-600">
+            Name:
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:border-blue-500"
+          />
+        </div>
+
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-600">
             Email:
