@@ -7,9 +7,20 @@ import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useState } from "react";
 import { MultiFactorResolver } from "@firebase/auth";
 import { CodeSignIn } from "./CodeSignIn";
+import { useAuth } from "@/context/AuthContext";
+import Loader from "@/components/Loder";
+// import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const { user, userLoading } = useAuth();
+
   const router = useRouter();
+
+  if (user !== null) {
+    console.log("protected", user);
+    router.push("/dashboard");
+  }
+
   const recaptcha = useRecaptcha("sign-in");
   const [verificationId, setVerificationId] = useState<string>();
   const [resolver, setResolver] = useState<MultiFactorResolver>();
@@ -48,6 +59,13 @@ export default function LoginPage() {
     } else {
       alert("Something went wrong");
     }
+  }
+  if (userLoading) {
+    return (
+      <div className="w-full flex justify-center items-center h-screen mx-auto">
+        <Loader />
+      </div>
+    );
   }
 
   return (

@@ -6,21 +6,23 @@ import Loader from "./Loder";
 const layout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { userLoading, user } = useAuth();
+  // console.log(user);
 
-  // useEffect(() => {
-  //   console.log("protected", user);
-  //   if (!user) {
-  //     router.push("/login");
-  //   }
-  // }, [user]);
+  useEffect(() => {
+    // console.log("protected", user);
+    if (user === null) {
+      console.log("protected", user);
+      router.push("/login");
+    }
+  }, [user]);
 
-  // if (userLoading) {
-  //   return (
-  //     <div className="w-full flex justify-center items-center h-screen mx-auto">
-  //       <Loader />
-  //     </div>
-  //   );
-  // }
+  if (userLoading) {
+    return (
+      <div className="w-full flex justify-center items-center h-screen mx-auto">
+        <Loader />
+      </div>
+    );
+  }
   return <>{children}</>;
 };
 

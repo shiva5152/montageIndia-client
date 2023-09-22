@@ -102,7 +102,7 @@ function MyForm() {
           </select>
         </div>
 
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label htmlFor="mediaType" className="block text-gray-600">
             Type:
           </label>
@@ -119,7 +119,7 @@ function MyForm() {
             <option value="video">security manager</option>
             <option value="video">cyber security manager </option>
           </select>
-        </div>
+        </div> */}
 
         {/* <div className="mb-4">
           <label htmlFor="category" className="block text-gray-600">

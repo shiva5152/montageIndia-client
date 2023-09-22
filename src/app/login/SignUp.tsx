@@ -39,13 +39,7 @@ export function SignUp() {
       <h2 className="mt-20 mb-8 text-3xl font-bold text-center text-gray-800">
         Create an account
       </h2>
-      <button
-        onClick={loginWithGoogle}
-        className="rounded-xl relative flex gap-x-4 mb-8 text-black h-11 w-full items-center justify-center px-6 border border-gray-500"
-      >
-        {/* <GoogleLogo className="w-6 h-6" /> */}
-        <span className="relative text-base font-light">with Google</span>
-      </button>
+
       <p className="text-center mb-8">Or</p>
       <form className="space-y-8" onSubmit={createAnAccount}>
         <div className="space-y-4">
@@ -55,7 +49,7 @@ export function SignUp() {
               ref={email}
               type="email"
               name="email"
-              placeholder="Insert your email"
+              placeholder="email"
               className="focus:outline-none
                                         block w-full rounded-xl placeholder-gray-500
                                         bg-gray-100 pl-12 pr-4 h-12 text-gray-600 transition
@@ -72,7 +66,7 @@ export function SignUp() {
               type="password"
               name="password"
               id="password"
-              placeholder="Insert your password"
+              placeholder="password"
               className="focus:outline-none block w-full rounded-xl placeholder-gray-500 bg-gray-100 pl-12 pr-4 h-12 text-gray-600 transition duration-300 invalid:ring-2 invalid:ring-red-400 focus:ring-2 focus:ring-black"
             />
           </div>
@@ -93,6 +87,15 @@ export function SignUp() {
           </Link>
         </p>
       </form>
+      <div>
+        <button
+          onClick={loginWithGoogle}
+          className="rounded-xl relative flex gap-x-4 mb-8 text-black h-11 w-full items-center justify-center px-6 border border-gray-500"
+        >
+          {/* <GoogleLogo className="w-6 h-6" /> */}
+          <span className="relative text-base font-light">with Google</span>
+        </button>
+      </div>
     </div>
   );
 }

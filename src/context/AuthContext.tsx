@@ -31,12 +31,12 @@ interface AuthContextType {
   handleSignInWithEmailLink: (url: string) => void;
   sendLinkSign: (email: string) => void;
 }
-let userr: User | null = null;
-if (typeof window === "object") {
-  userr = JSON.parse(window.localStorage.getItem("user") as string);
-}
+// let userr: User | null = null;
+// if (typeof window === "object") {
+//   userr = JSON.parse(window.localStorage.getItem("user") as string);
+// }
 const initialAuthState: AuthContextType = {
-  user: userr,
+  user: null,
   userLoading: false,
   loading: false,
   login: (username: string, password: string) => {},
@@ -71,7 +71,7 @@ export const AuthContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [user, setUser] = useState<any>(userr);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [userLoading, setUserLoading] = useState(true);
 
@@ -95,7 +95,7 @@ export const AuthContextProvider = ({
       //   name: result?.user?.displayName as string,
       //   email: result?.user?.email as string,
       // });
-      setUser(tempUser);
+      setUser(result.user);
     } catch (error: any) {
       console.log(error);
       alert(error.message);
@@ -112,7 +112,7 @@ export const AuthContextProvider = ({
         emailVerified: result?.user?.emailVerified,
       };
 
-      setUser(tempUser);
+      setUser(result.user);
       window.localStorage.setItem("user", JSON.stringify(tempUser));
     } catch (error: any) {
       console.log(error);
@@ -131,7 +131,7 @@ export const AuthContextProvider = ({
         email: result?.user?.email as string,
         emailVerified: result?.user?.emailVerified,
       };
-      setUser(tempUser);
+      setUser(result.user);
       addUserToDb({
         name: result?.user?.displayName as string,
         email: result?.user?.email as string,
@@ -213,12 +213,7 @@ export const AuthContextProvider = ({
     console.log("from the auth", loading);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          emailVerified: user.emailVerified,
-        });
+        setUser(user);
         console.log(user);
       } else {
         setUser(null);
