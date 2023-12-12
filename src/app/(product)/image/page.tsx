@@ -134,7 +134,7 @@ const getImg = (imgName: string, width: number, height: number) => {
   ];
 };
 
-const awsHost = "https://shivatemp1.s3.eu-north-1.amazonaws.com";
+const awsHost = "https://montage-india.s3.eu-north-1.amazonaws.com";
 
 const page = () => {
   const [file, setFile] = useState<File[] | null>(null);
